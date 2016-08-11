@@ -15,9 +15,6 @@ public class Document {
     private final UUID uid;
     private final URI url;
     private final Response response;
-    private final DateTime expiresAt;
-
-    private static final long TTL = 60 * 1000; // ms
 
     public Document(String url, @Nonnull Response response) {
         this(UUID.randomUUID(), url, response);
@@ -27,7 +24,6 @@ public class Document {
         this.uid = uid;
         this.url = URI.create(url);
         this.response = response;
-        this.expiresAt = DateTime.now().plus(TTL);
     }
 
     public UUID getUid() {
@@ -41,9 +37,5 @@ public class Document {
     @Nonnull
     public Response getResponse() {
         return response;
-    }
-
-    public DateTime getExpiresAt() {
-        return expiresAt;
     }
 }
