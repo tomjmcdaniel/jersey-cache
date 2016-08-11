@@ -19,3 +19,9 @@ GET /cache/{uid}
 Reads a previously-cached response with the associated uid.  
 * Cache-hit will return the original Response (status, headers, body...)
 * Cache-miss will return a 404 Not Found
+
+## Build
+
+```
+mvn clean test exec:java
+```
