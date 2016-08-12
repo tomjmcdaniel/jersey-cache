@@ -1,6 +1,7 @@
 package com.example.dao;
 
 import com.example.data.Document;
+import com.google.common.base.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class VolatileDocumentStore implements GenericStore<Document> {
     }
 
     @Override
-    public Document get(UUID key) {
-        return documents.get(key);
+    public Optional<Document> get(UUID key) {
+        return Optional.fromNullable(documents.get(key));
     }
 }

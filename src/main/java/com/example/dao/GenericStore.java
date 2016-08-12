@@ -1,6 +1,7 @@
 package com.example.dao;
 
-import javax.annotation.Nullable;
+import com.google.common.base.Optional;
+
 import java.util.UUID;
 
 /**
@@ -15,10 +16,7 @@ public interface GenericStore<T> {
     void put(UUID key, T document);
 
     /**
-     * Read from the store
-     *
-     * NOTE: would prefer Optional<T> over Nullable return, but entire guava library is a bit much for single use
+     * Read from the store, returning Null on cache-miss
      */
-    @Nullable
-    T get(UUID key);
+    Optional<T> get(UUID key);
 }

@@ -1,8 +1,10 @@
 package com.example.controller;
 
 import com.example.dao.GenericStore;
+import com.example.dao.GuavaCacheDocumentStore;
 import com.example.dao.VolatileDocumentStore;
 import com.example.data.Document;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.*;
 import javax.ws.rs.client.ClientBuilder;
@@ -18,7 +20,9 @@ public class DocumentController {
 
     // for mocking
     static GenericStore<Document> dao() {
-        return new VolatileDocumentStore();
+        // TODO: switch on some config, expose sibling endpoints, or something...
+        // return new VolatileDocumentStore();
+        return new GuavaCacheDocumentStore();
     }
 
     /**
@@ -29,11 +33,10 @@ public class DocumentController {
     public Response get(
         @PathParam("uid") String key
     ) throws IOException {
-        Document cacheHit = dao().get(UUID.fromString(key));
+        Optional<Document> cacheHit = dao().get(UUID.fromString(key));
 
-        // yuck: null check, prefer Optional
-        if (cacheHit != null) {
-            return cacheHit.getResponse();
+        if (cacheHit.isPresent()) {
+            return cacheHit.get().getResponse();
 
         } else {
             // NOTE: we're conflating cache miss with a hit on upstream 404
@@ -64,10 +67,16 @@ public class DocumentController {
      * This should really reside in a dedicated Client, but it is painfully simple and mockable as-is. Avoid premature
      * optimization
      */
-    private Document getDocument(String url) {
-        return new Document(
-            url,
-            ClientBuilder.newClient().target(url).request().get()
-        );
+    private Document getDocument(String url) throws IOException {
+        // perform GET
+        Response response = ClientBuilder.newClient().target(url).request().get();
+
+        // create the Document, which will flush the Response's input stream for multipe reads
+        Document doc = new Document(url, response);
+
+        // make sure to close the connection to clean up resources
+        response.close();
+
+        return doc;
     }
 }
